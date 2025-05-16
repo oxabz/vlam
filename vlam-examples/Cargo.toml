@@ -1,0 +1,11 @@
+[package]
+name = "vlam-examples"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# HAL
+esp-backtrace = { version = "0.15.1", features = ["esp32h2", "println", "panic-handler"]}
+esp-hal = { version = "0.23.1", features = ["esp32h2"] }
+esp-println = { version = "0.13.1", features = ["esp32h2"] }
+vlam = {path = "../vlam"}
