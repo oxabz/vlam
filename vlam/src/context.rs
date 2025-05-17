@@ -63,7 +63,7 @@ impl VLACtx{
     #[inline(always)]
     unsafe fn allocate_buffer<'ctx>(size: usize) -> *mut u8 {
         let mut origin: *mut u8 = null_mut();
-        let blocks = if size % MIN_ALIGN == 0 { size / MIN_ALIGN } else { size / MIN_ALIGN + 1 };
+        let blocks = (size + MIN_ALIGN - 1) / MIN_ALIGN;
         let size = blocks * MIN_ALIGN;
         // Push the stack down to allow space for the
         // SAFETY : This is only ok because we save the initial state of the stack pointer before changing it
