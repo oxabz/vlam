@@ -13,7 +13,7 @@ use core::ptr::{null, null_mut, write, write_bytes};
 use crate::array::VLArray;
 
 /// The minimum alignment of the arrays (due to stack pointer alignment)
-const MIN_ALIGN : usize = 16;
+const MIN_ALIGN : usize = crate::utils::max(align_of::<u128>(), crate::arch::STACK_ALIGNMENT);
 
 /**
 Context within which the variable length array are valid.
@@ -45,10 +45,7 @@ impl VLACtx{
 
         // SAFETY : This only save a frame pointer
         unsafe {
-            core::arch::asm!(
-            "mv {saved_sp}, sp",
-            saved_sp = out(reg) saved_sp,
-            )
+            crate::arch::save_stack_pointer!(saved_sp);
         };
 
         VLACtx{saved_sp, phantom_pinned: Default::default() }
@@ -69,12 +66,7 @@ impl VLACtx{
         // SAFETY : This is only ok because we save the initial state of the stack pointer before changing it
         // And we will release it
         unsafe{
-            core::arch::asm!(
-            "mv {orig}, sp",
-            "sub sp, sp, {len}",
-            orig = out(reg) origin,
-            len = in(reg) size
-            );
+            crate::arch::allocate_on_stack!(origin, size);
             origin.sub(size)
         }
     }
@@ -185,15 +177,12 @@ impl Drop for VLACtx{
         // SAFETY: Restores the stack pointer.
         // This is only safe because the type is pinned to the stack at all time.
         unsafe {
-            core::arch::asm!(
-            "mv sp, {saved_sp}",
-            saved_sp = in(reg) saved_sp,
-            )
+            crate::arch::restore_stack_pointer!(saved_sp);
         };
     }
 }
 
-/// Creates the context object safely by pinning it to the stack 
+/// Creates the context object safely by pinning it to the stack
 #[macro_export]
 macro_rules! ctx {
     ($ctx:ident) => {
