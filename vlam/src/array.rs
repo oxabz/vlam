@@ -8,7 +8,7 @@ pub struct VLArray<'ctx, T>{
     pub(crate) _ctx: &'ctx Pin<&'ctx mut VLACtx>,
 }
 
-impl<'ctx, T> core::ops::Deref for  VLArray<'ctx, T> {
+impl<T> core::ops::Deref for  VLArray<'_, T> {
     type Target = [T];
 
     fn deref(&self) -> &Self::Target {
@@ -16,17 +16,17 @@ impl<'ctx, T> core::ops::Deref for  VLArray<'ctx, T> {
     }
 }
 
-impl<'ctx, T> core::ops::DerefMut for VLArray<'ctx, T> {
+impl<T> core::ops::DerefMut for VLArray<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { core::slice::from_raw_parts_mut(self.ptr, self.len) }
     }
 }
 
-impl<'ctx, T> Drop for VLArray<'ctx, T> {
+impl<T> Drop for VLArray<'_, T> {
     fn drop(&mut self) {
         unsafe {
             for i in 0..self.len {
-                core::ptr::drop_in_place(self.ptr.offset(i as isize));
+                core::ptr::drop_in_place(self.ptr.add(i));
             }
         };
     }

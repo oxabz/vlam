@@ -26,21 +26,23 @@ Do not construct it through the init function unless you understand what you are
 pub struct VLACtx{
     saved_sp: *const u8,
     // Should be pinned because of the raw pointer but double it just to be sure
-    phantom_pinned: PhantomPinned,
+    _phantom_pinned: PhantomPinned,
 }
 
 
 impl VLACtx{
     /**
-     * Create the context for the VLA.
-     *
-     * **Note** Unless you know what you are doing use the `vlam::ctx!` macro
-     *
-     * **Safety** The function is unsafe because it produces a VLACtx that is not protected by a pin
-     * which means it can be moved outside the scope that makes it valid. Moving VLA will lead to UB.
+     Create the context for the VLA.
+
+     **Note** Unless you know what you are doing use the `vlam::ctx!` macro
+
+     # Safety
+     The function is unsafe because it produces a VLACtx that is not protected by a pin
+     which means it can be moved outside the scope that makes it valid. Moving VLA will lead to UB.
      */
     #[inline(always)]
     pub unsafe fn init() -> Self{
+        #[allow(unused_assignments)]
         let mut saved_sp = null();
 
         // SAFETY : This only save a frame pointer
@@ -48,19 +50,20 @@ impl VLACtx{
             crate::arch::save_stack_pointer!(saved_sp);
         };
 
-        VLACtx{saved_sp, phantom_pinned: Default::default() }
+        VLACtx{saved_sp, _phantom_pinned: Default::default() }
     }
 
     /**
     Allocates the space for len bytes (not necessarily exactly len)
 
     ** Safety :** This should only be within inside a function that already has a context initialized.
-        The pointer produced should not be used outside of the function this function was called in
+        The pointer produced should not be used outside the function this function was called in
      */
     #[inline(always)]
-    unsafe fn allocate_buffer<'ctx>(size: usize) -> *mut u8 {
+    unsafe fn allocate_buffer(size: usize) -> *mut u8 {
+        #[allow(unused_assignments)]
         let mut origin: *mut u8 = null_mut();
-        let blocks = (size + MIN_ALIGN - 1) / MIN_ALIGN;
+        let blocks = size.div_ceil(MIN_ALIGN);
         let size = blocks * MIN_ALIGN;
         // Push the stack down to allow space for the
         // SAFETY : This is only ok because we save the initial state of the stack pointer before changing it
@@ -102,7 +105,7 @@ impl VLACtx{
 
         for i in 0..len {
             unsafe {
-                write(origin.offset(i as isize), value.clone());
+                write(origin.add(i), value.clone());
             }
         }
 
@@ -119,14 +122,14 @@ impl VLACtx{
     #[inline(always)]
     pub fn array_from_cloneable_slice<'ctx, T: Clone>(self: &'ctx Pin<&'ctx mut Self>, values: &[T]) -> VLArray<'ctx, T> {
         let len = values.len();
-        let size = len * size_of::<T>();
+        let size = size_of_val(values);
         let origin = unsafe {
             Self::allocate_buffer(size) as *mut T
         };
 
         for (i,v) in values.iter().enumerate() {
             unsafe {
-                write(origin.offset(i as isize), v.clone());
+                write(origin.add(i), v.clone());
             }
         }
 
@@ -155,7 +158,7 @@ impl VLACtx{
 
         for (i,v) in it.enumerate() {
             unsafe {
-                write(origin.offset(i as isize), v);
+                write(origin.add(i), v);
             }
         }
 

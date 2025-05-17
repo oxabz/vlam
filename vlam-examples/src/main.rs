@@ -5,6 +5,7 @@ use esp_println::{print, println};
 use esp_hal::{main};
 use vlam::{ctx, VLArray};
 use esp_backtrace::*;
+use esp_hal::delay::Delay;
 
 #[inline(never)]
 fn foo(n: usize){
@@ -36,15 +37,15 @@ fn foo(n: usize){
 
 #[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let _peripherals = esp_hal::init(esp_hal::Config::default());
 
     println!("Hello, world!");
 
     foo(16);
 
     println!("Hello, again!");
-
+    let delay = Delay::new();
     loop {
-        // println!("tick!")
+        delay.delay_millis(200);
     }
 }
