@@ -883,6 +883,9 @@ checksum = "77439c1b53d2303b20d9459b1ade71a83c716e3f9c34f3228c00e6f185d6c002"
 [[package]]
 name = "vlam"
 version = "0.1.0"
+dependencies = [
+ "vlam-macro",
+]
 
 [[package]]
 name = "vlam-examples"
@@ -892,6 +895,14 @@ dependencies = [
  "esp-hal",
  "esp-println",
  "vlam",
+]
+
+[[package]]
+name = "vlam-macro"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
 ]
 
 [[package]]

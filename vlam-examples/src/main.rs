@@ -3,14 +3,12 @@
 
 use esp_println::{print, println};
 use esp_hal::{main};
-use vlam::{ctx, VLArray};
-use esp_backtrace::*;
+use vlam::VLArray;
+use esp_backtrace as _;
 use esp_hal::delay::Delay;
 
-#[inline(never)]
+#[vlam::vlam(array_context)]
 fn foo(n: usize){
-    ctx!(array_context);
-
     let mut buffer: VLArray<u8> = array_context.zeroed_buffer(n);
     let other_buffer: VLArray<u32> = array_context.array_from_exact_size_iterator(0..255);
 

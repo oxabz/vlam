@@ -184,16 +184,3 @@ impl Drop for VLACtx{
         };
     }
 }
-
-/// Creates the context object safely by pinning it to the stack
-#[macro_export]
-macro_rules! ctx {
-    ($ctx:ident) => {
-        fn __double_context_declaration() {}
-        let $ctx = unsafe {
-            vlam::VLACtx::init()
-        };
-        let $ctx = core::pin::pin!($ctx);
-    };
-}
-

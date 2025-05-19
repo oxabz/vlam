@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/vlam-macros/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vlam/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vlam-examples/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vlam-macro/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
