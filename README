@@ -1,9 +1,0 @@
-# VLAM !!!
-
-This crate is an implementation of stack allocated variable length array.
-For now this crate is only for riscv32 baremetal context.
-
-## How does it works ?
-
-This crate works by pushing the stack pointer using inline ASM instructions and restoring it before leaving the function.
-This is done through the context struct. Which save the stack frame at it's creation and restore it when it's dropped.
